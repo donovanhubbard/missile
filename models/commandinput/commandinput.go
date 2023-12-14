@@ -2,7 +2,7 @@
 Copyright © 2023 Donovan Hubbard
 */
 
-package model
+package commandinput
 
 import (
 	"github.com/charmbracelet/bubbles/textinput"
@@ -18,12 +18,9 @@ var (
 
 type Model struct {
 	commandInput textinput.Model
-	err          error
-	serverList   []string
-	history      []string
 }
 
-func New(hosts []string) Model {
+func New() Model {
 	commandInput := textinput.New()
 	// commandInput.Placeholder = "Enter command"
 	commandInput.Focus()
@@ -32,7 +29,6 @@ func New(hosts []string) Model {
 	commandInput.Width = 25
 	return Model{
 		commandInput: commandInput,
-		serverList:   hosts,
 	}
 }
 
@@ -56,12 +52,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	header := lipgloss.NewStyle().
-		SetString("header").
-		Foreground(green).
-		BorderStyle(lipgloss.RoundedBorder()).
-		BorderForeground(purple).
-		String()
 	commandInputString := lipgloss.NewStyle().
 		SetString(m.commandInput.View()).
 		Foreground(green).
@@ -69,10 +59,8 @@ func (m Model) View() string {
 		BorderForeground(purple).
 		String()
 
-	text := lipgloss.JoinVertical(lipgloss.Center, header, commandInputString)
 	var b strings.Builder
-	b.WriteString(text)
+	b.WriteString(commandInputString)
 	b.WriteString("\n")
 	return b.String()
-
 }

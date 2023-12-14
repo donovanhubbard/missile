@@ -1,4 +1,4 @@
-module github.com/donovanhubbard/missle
+module github.com/donovanhubbard/missile
 
 go 1.21.5
 
@@ -6,7 +6,7 @@ require (
 	github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874
 	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.24.2
-	github.com/charmbracelet/lipgloss v0.9.1
+	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/spf13/cobra v1.8.0
 )
 

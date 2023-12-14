@@ -7,7 +7,7 @@ import (
 	"fmt"
 	// "github.com/donovanhubbard/missle/backend"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/donovanhubbard/missle/model"
+	"github.com/donovanhubbard/missile/models"
 	"github.com/spf13/cobra"
 	"os"
 	"regexp"
@@ -53,7 +53,7 @@ to quickly create a Cobra application.`,
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Running bare command")
-		m := model.New(args)
+		m := models.New(args)
 		p := tea.NewProgram(m)
 		_, err := p.Run()
 

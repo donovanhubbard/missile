@@ -1,4 +1,4 @@
-# missle
+# missile
 An interactive CLI for interacting with memcached
 
 ## TODO
