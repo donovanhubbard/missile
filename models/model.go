@@ -8,6 +8,7 @@ import (
 	"strings"
 	tea "github.com/charmbracelet/bubbletea"
   "github.com/donovanhubbard/missile/models/commandinput"
+  "github.com/donovanhubbard/missile/models/commandhistory"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -18,24 +19,40 @@ var (
 
 type Model struct {
   commandInput tea.Model
+  commandHistory tea.Model
 }
 
 func New(hosts []string) Model {
-	commandInput := commandinput.New()
+  width := 35
+	commandInput := commandinput.New(width)
+  commandHistory := commandhistory.New(10,width+3)
+  commandHistory.AddText("Penn")
+  commandHistory.AddText("Teller")
+
 	return Model{
 		commandInput: commandInput,
+    commandHistory: commandHistory,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
+  m.commandInput.Init()
+  m.commandHistory.Init()
 	return m.commandInput.Init()
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-  commandInput, commandInputCmd := m.commandInput.Update(msg)
+  var cmds []tea.Cmd
+  var cmd tea.Cmd
+
+  commandInput, cmd := m.commandInput.Update(msg)
+  cmds = append(cmds, cmd)
+  commandHistory, cmd := m.commandHistory.Update(msg)
+  cmds = append(cmds, cmd)
 
   m.commandInput = commandInput
-  return m, commandInputCmd
+  m.commandHistory = commandHistory
+  return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
@@ -45,9 +62,10 @@ func (m Model) View() string {
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(purple).
 		String()
+  commandHistoryString := m.commandHistory.View()
   commandInputString := m.commandInput.View()
 
-	text := lipgloss.JoinVertical(lipgloss.Center, header, commandInputString)
+	text := lipgloss.JoinVertical(lipgloss.Center, header, commandHistoryString, commandInputString, )
 
 	var b strings.Builder
 	b.WriteString(text)

@@ -52,7 +52,6 @@ to quickly create a Cobra application.`,
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Running bare command")
 		m := models.New(args)
 		p := tea.NewProgram(m)
 		_, err := p.Run()

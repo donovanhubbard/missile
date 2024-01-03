@@ -20,13 +20,13 @@ type Model struct {
 	commandInput textinput.Model
 }
 
-func New() Model {
+func New(width int) Model {
 	commandInput := textinput.New()
 	// commandInput.Placeholder = "Enter command"
 	commandInput.Focus()
 	commandInput.CharLimit = 256
   //TODO make this width dynamicly sized
-	commandInput.Width = 25
+	commandInput.Width = width
 	return Model{
 		commandInput: commandInput,
 	}
