@@ -13,3 +13,12 @@ An interactive CLI for interacting with memcached
   - Maybe a disconnect button? Or maybe they will just type quit.
   - See if you can add a title pane or icon or something
 
+:  ⃝ U+20DD
+⏺ U+23FA
+● U+25CF
+⃠ U+20E0
+∅ U+2205
+⊘ U+2298
+⚠ U+26A0
+⚡U+26A1
+
