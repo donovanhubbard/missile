@@ -16,20 +16,18 @@ var (
 )
 
 type Model struct {
-  text []string
+  commandText []CommandText
   maxSize int
-  width int
+  Width int
+  Height int
 }
 
-func New(size int, width int) Model {
+func New(size int, width int, height int) Model {
   return Model {
     maxSize: size,
-    width: width,
+    Width: width,
+    Height: height,
   }
-}
-
-func (m *Model) AddText(newText string){
-  m.text = append(m.text, newText)
 }
 
 func (m Model) Init() tea.Cmd {
@@ -37,17 +35,32 @@ func (m Model) Init() tea.Cmd {
 }
 
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
   return m, nil
 }
 
 
 func (m Model) View() string {
   return lipgloss.NewStyle().
-    SetString(strings.Join(m.text, "\n")).
+    SetString(m.renderText()).
     Foreground(green).
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(purple).
-    Width(m.width).
+    Width(m.Width).
+    Height(m.Height).
 		String()
+}
+
+func (m Model) renderText() string {
+  var sb strings.Builder
+  for _, commandText := range m.commandText {
+    sb.WriteString(commandText.Text)
+    sb.WriteString("\n")
+  }
+  return sb.String()
+}
+
+func (m Model) AddCommandText(ct CommandText) Model {
+  m.commandText = append(m.commandText,ct)
+  return m
 }

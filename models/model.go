@@ -19,17 +19,17 @@ var (
 )
 
 type Model struct {
-  commandInput tea.Model
-  commandHistory tea.Model
-  serverList tea.Model
+  commandInput commandinput.Model
+  commandHistory commandhistory.Model
+  serverList serverlist.Model
+  height int
+  width int
 }
 
 func New(hosts []string) Model {
   width := 35
 	commandInput := commandinput.New(width)
-  commandHistory := commandhistory.New(10,width+3)
-  commandHistory.AddText("Penn")
-  commandHistory.AddText("Teller")
+  commandHistory := commandhistory.New(10,width+3, 15)
   serverList := serverlist.New(hosts)
 
 	return Model{
@@ -49,6 +49,25 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
   var cmds []tea.Cmd
   var cmd tea.Cmd
+
+  switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+    m.commandInput.Width = m.width - 30
+    m.commandHistory.Width = m.width - 30
+    m.commandHistory.Height = m.height - 10
+    m.serverList.Height = m.height - 10
+  case tea.KeyMsg:
+    switch msg.String() {
+    case "ctrl+c":
+      return m, tea.Quit
+    case "enter":
+      userInput := m.commandInput.Value()
+      m.commandInput = m.commandInput.Reset()
+      m.commandHistory = m.commandHistory.AddCommandText(commandhistory.CommandText{Text: userInput})
+    }
+  }
 
   commandInput, cmd := m.commandInput.Update(msg)
   cmds = append(cmds, cmd)

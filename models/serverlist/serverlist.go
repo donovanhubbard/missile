@@ -17,6 +17,7 @@ var (
 
 type Model struct {
   servers []string
+  Height int
 }
 
 func New(serverNames []string)Model{
@@ -29,7 +30,7 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
   return m, nil
 }
 
@@ -39,7 +40,7 @@ func (m Model) View() string {
     Foreground(green).
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(purple).
-    Height(5).
+    Height(m.Height).
 		String()
 }
 

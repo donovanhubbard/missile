@@ -18,6 +18,7 @@ var (
 
 type Model struct {
 	commandInput textinput.Model
+  Width int
 }
 
 func New(width int) Model {
@@ -25,10 +26,10 @@ func New(width int) Model {
 	// commandInput.Placeholder = "Enter command"
 	commandInput.Focus()
 	commandInput.CharLimit = 256
-  //TODO make this width dynamicly sized
 	commandInput.Width = width
 	return Model{
 		commandInput: commandInput,
+    Width: width,
 	}
 }
 
@@ -36,9 +37,10 @@ func (m Model) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 
+	m.commandInput.Width = m.Width
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -63,4 +65,13 @@ func (m Model) View() string {
 	b.WriteString(commandInputString)
 	b.WriteString("\n")
 	return b.String()
+}
+
+func (m Model) Reset() Model{
+  m.commandInput.Reset()
+  return m
+}
+
+func (m Model) Value() string{
+  return m.commandInput.Value()
 }
