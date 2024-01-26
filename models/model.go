@@ -65,7 +65,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     case "enter":
       userInput := m.commandInput.Value()
       m.commandInput = m.commandInput.Reset()
-      m.commandHistory = m.commandHistory.AddCommandText(commandhistory.CommandText{Text: userInput})
+      ct := commandhistory.CommandText{ Text: userInput, Type: commandhistory.UserInput }
+      m.commandHistory = m.commandHistory.AddCommandText(ct)
+      ct = m.processCommand(userInput)
+      m.commandHistory = m.commandHistory.AddCommandText(ct)
     }
   }
 
@@ -101,4 +104,8 @@ func (m Model) View() string {
 	b.WriteString(text)
 	b.WriteString("\n")
 	return b.String()
+}
+
+func (m Model) processCommand(command string) commandhistory.CommandText {
+  return commandhistory.CommandText{Text:"Unrecognized command",Type:commandhistory.FailureResponse}
 }

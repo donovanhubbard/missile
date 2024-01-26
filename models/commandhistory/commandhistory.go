@@ -54,6 +54,10 @@ func (m Model) View() string {
 func (m Model) renderText() string {
   var sb strings.Builder
   for _, commandText := range m.commandText {
+    switch commandText.Type {
+    case UserInput:
+      sb.WriteString("> ")
+    }
     sb.WriteString(commandText.Text)
     sb.WriteString("\n")
   }
