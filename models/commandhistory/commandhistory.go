@@ -29,7 +29,6 @@ func New(size int, width int, height int) Model {
     Height: height,
   }
 }
-
 func (m Model) Init() tea.Cmd {
 	return nil
 }
@@ -52,15 +51,29 @@ func (m Model) View() string {
 }
 
 func (m Model) renderText() string {
+
   var sb strings.Builder
+  var texts []string
+  var i, effectiveHeight int
+
   for _, commandText := range m.commandText {
-    switch commandText.Type {
-    case UserInput:
-      sb.WriteString("> ")
-    }
-    sb.WriteString(commandText.Text)
-    sb.WriteString("\n")
+    texts = append(texts,commandText.render())
   }
+
+  effectiveHeight = m.Height - 1
+
+  if len(m.commandText) < effectiveHeight {
+    i = 0
+  } else {
+    i = len(m.commandText) - effectiveHeight
+  }
+
+  for i < len(texts) {
+    sb.WriteString(texts[i])
+    sb.WriteString("\n")
+    i++
+  }
+
   return sb.String()
 }
 

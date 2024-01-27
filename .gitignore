@@ -22,3 +22,5 @@ go.work
 
 # The binary
 missile
+
+*.log

@@ -3,16 +3,15 @@ An interactive CLI for interacting with memcached
 
 ## TODO
 
+- Shrink the command history area height when the screen resizes and only display the commandTexts that will fit on the screen
+- Modify the non-bubbletea functions to use a pointer instead of return the model object.
+- consider moving the model/model.go object out of the model directory becuase it will be the core logic for the whole app.
 - Create a backend object
 - Have the backend object create a client for every host so you can ping them individually. These will need to use go routines
 - When you perform operations you should list what server was written to
-- create the interface. It should have
-  - A text area to accept new commands. It should have autocomplete the various commands and arguments
-  - A server list that tells if servers are online or not
-  - A viewport that lists the output of commands and the command history
-  - Maybe a disconnect button? Or maybe they will just type quit.
-  - See if you can add a title pane or icon or something
 
+## Interseting unicode characters
+The following are some interesting unicode characters you may want to use
 :  ⃝ U+20DD
 ⏺ U+23FA
 ● U+25CF
