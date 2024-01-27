@@ -67,9 +67,8 @@ func (m Model) View() string {
 	return b.String()
 }
 
-func (m Model) Reset() Model{
+func (m *Model) Reset() {
   m.commandInput.Reset()
-  return m
 }
 
 func (m Model) Value() string{

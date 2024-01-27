@@ -79,7 +79,6 @@ func (m Model) renderText() string {
   return sb.String()
 }
 
-func (m Model) AddCommandText(ct CommandText) Model {
+func (m *Model) AddCommandText(ct CommandText) {
   m.commandText = append(m.commandText,ct)
-  return m
 }

@@ -69,11 +69,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         return m, tea.Quit
       }
 
-      m.commandInput = m.commandInput.Reset()
+      m.commandInput.Reset()
       ct := commandhistory.CommandText{ Text: userInput, Type: commandhistory.UserInput }
-      m.commandHistory = m.commandHistory.AddCommandText(ct)
+      m.commandHistory.AddCommandText(ct)
       ct = m.processCommand(userInput)
-      m.commandHistory = m.commandHistory.AddCommandText(ct)
+      m.commandHistory.AddCommandText(ct)
     }
   }
 
