@@ -57,7 +57,10 @@ func (m Model) renderText() string {
   var i, effectiveHeight int
 
   for _, commandText := range m.commandText {
-    texts = append(texts,commandText.render())
+    renderedLines := commandText.render(m.Width)
+    for _,line := range renderedLines {
+      texts = append(texts,line)
+    }
   }
 
   effectiveHeight = m.Height - 1

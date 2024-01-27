@@ -64,6 +64,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
       return m, tea.Quit
     case "enter":
       userInput := m.commandInput.Value()
+
+      if userInput == "exit" || userInput == "quit" {
+        return m, tea.Quit
+      }
+
       m.commandInput = m.commandInput.Reset()
       ct := commandhistory.CommandText{ Text: userInput, Type: commandhistory.UserInput }
       m.commandHistory = m.commandHistory.AddCommandText(ct)
