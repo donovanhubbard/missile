@@ -1,14 +1,20 @@
 package commandhistory
 
 import (
+  "github.com/muesli/reflow/wordwrap"
+  "github.com/muesli/reflow/wrap"
+  "github.com/charmbracelet/lipgloss"
   "strings"
-  "math"
 )
 
 const (
   UserInput = "UserInput"
   SuccessResponse = "SuccessResponse"
   FailureResponse = "FailureResponse"
+)
+
+var (
+  red = lipgloss.Color("9")
 )
 
 type CommandText struct {
@@ -19,41 +25,36 @@ type CommandText struct {
 
 func (ct CommandText) render(width int) []string {
   var sb strings.Builder
+  var currentStyle lipgloss.Style
+
+  userInputStyle := lipgloss.NewStyle().Foreground(green)
+  failureResponseStyle := lipgloss.NewStyle().Foreground(red)
 
   switch ct.Type {
     case UserInput:
       sb.WriteString("> ")
+      currentStyle = userInputStyle
+    case FailureResponse:
+      currentStyle = failureResponseStyle
   }
 
   sb.WriteString(ct.Text)
   result := sb.String()
 
-  return divideIntoLines(result, width)
-}
+  //wordwrap will break up by words
+  //wrap will break up by letters ignoring spaces.
+  //We want to split by words first then by characters
+  wordWrapped := strings.Split(wordwrap.String(result, width), "\n")
+  var unformattedLines []string
+  for _, line := range wordWrapped {
+    unformattedLines = append(unformattedLines, strings.Split(wrap.String(line,width),"\n")...)
+  }
 
-func divideIntoLines(text string, width int) []string{
-   var floatText, floatWidth float64
-   var linesNeeded, currentLineNumber, currentIndex, endOfLine int
-   floatText = float64(len(text))
-   floatWidth = float64(width)
+  formattedLines := make([]string, len(unformattedLines))
 
-   linesNeeded = int(math.Ceil(floatText / floatWidth))
-
-   var lines []string
-   lines = make([]string,linesNeeded)
-   currentLineNumber = 0
-   currentIndex = 0
-
-   for currentLineNumber < linesNeeded {
-     if currentIndex + width < len(text) {
-       endOfLine = currentIndex + width
-     }else {
-       endOfLine = len(text) - 1
-     }
-     lines[currentLineNumber] = text[currentIndex:endOfLine]
-     currentLineNumber++
-     currentIndex += width
-   }
-   return lines
+  for i, line := range unformattedLines {
+    formattedLines[i] = currentStyle.Copy().SetString(line).String()
+  }
+  return formattedLines
 }
 

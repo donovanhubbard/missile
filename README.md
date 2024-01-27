@@ -3,8 +3,8 @@ An interactive CLI for interacting with memcached
 
 ## TODO
 
-- Shrink the command history area height when the screen resizes and only display the commandTexts that will fit on the screen
 - Modify the non-bubbletea functions to use a pointer instead of return the model object.
+- Delete commandhistory text after a scrollback number has been passed
 - consider moving the model/model.go object out of the model directory becuase it will be the core logic for the whole app.
 - Create a backend object
 - Have the backend object create a client for every host so you can ping them individually. These will need to use go routines

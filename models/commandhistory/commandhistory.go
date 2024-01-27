@@ -42,7 +42,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() string {
   return lipgloss.NewStyle().
     SetString(m.renderText()).
-    Foreground(green).
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(purple).
     Width(m.Width).
