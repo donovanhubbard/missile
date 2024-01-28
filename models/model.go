@@ -11,6 +11,7 @@ import (
   "github.com/donovanhubbard/missile/models/commandhistory"
   "github.com/donovanhubbard/missile/models/serverlist"
 	"github.com/charmbracelet/lipgloss"
+  "github.com/bradfitz/gomemcache/memcache"
 )
 
 var (
@@ -21,7 +22,9 @@ var (
 type Model struct {
   commandInput commandinput.Model
   commandHistory commandhistory.Model
-  serverList serverlist.Model
+  serverListPane serverlist.Model
+  mc *memcache.Client
+  serverList *memcache.ServerList
   height int
   width int
 }
@@ -30,11 +33,17 @@ func New(hosts []string) Model {
   width := 35
 	commandInput := commandinput.New(width)
   commandHistory := commandhistory.New(10,width+3, 15)
-  serverList := serverlist.New(hosts)
+  serverListPane := serverlist.New(hosts)
+  mc := memcache.New(hosts...)
+  serverList := &memcache.ServerList{}
+  serverList.SetServers(hosts...)
+
 
 	return Model{
 		commandInput: commandInput,
     commandHistory: commandHistory,
+    serverListPane: serverListPane,
+    mc: mc,
     serverList: serverList,
 	}
 }
@@ -42,7 +51,7 @@ func New(hosts []string) Model {
 func (m Model) Init() tea.Cmd {
   m.commandInput.Init()
   m.commandHistory.Init()
-  m.serverList.Init()
+  m.serverListPane.Init()
 	return nil
 }
 
@@ -57,7 +66,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     m.commandInput.Width = m.width - 30
     m.commandHistory.Width = m.width - 30
     m.commandHistory.Height = m.height - 10
-    m.serverList.Height = m.height - 10
+    m.serverListPane.Height = m.height - 10
   case tea.KeyMsg:
     switch msg.String() {
     case "ctrl+c":
@@ -65,7 +74,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     case "enter":
       userInput := m.commandInput.Value()
 
-      if userInput == "exit" || userInput == "quit" {
+      if userInput == "exit" || userInput == "quit" || userInput == "q" {
         return m, tea.Quit
       }
 
@@ -81,12 +90,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
   cmds = append(cmds, cmd)
   commandHistory, cmd := m.commandHistory.Update(msg)
   cmds = append(cmds, cmd)
-  serverList, cmd := m.serverList.Update(msg)
+  serverListPane, cmd := m.serverListPane.Update(msg)
   cmds = append(cmds, cmd)
 
   m.commandInput = commandInput
   m.commandHistory = commandHistory
-  m.serverList = serverList
+  m.serverListPane = serverListPane
   return m, tea.Batch(cmds...)
 }
 
@@ -98,12 +107,12 @@ func (m Model) View() string {
   header := defaultStyle.SetString("missile").String()
   commandHistoryString := m.commandHistory.View()
   commandInputString := m.commandInput.View()
-  serverListString := m.serverList.View()
+  serverListPaneString := m.serverListPane.View()
   serverHeader := defaultStyle.SetString("Servers").String()
 
 	text := lipgloss.JoinVertical(lipgloss.Center, header, commandHistoryString, commandInputString, )
-  serverListColumn := lipgloss.JoinVertical(lipgloss.Bottom, serverHeader, serverListString)
-  text = lipgloss.JoinHorizontal(lipgloss.Top, text, serverListColumn)
+  serverListPaneColumn := lipgloss.JoinVertical(lipgloss.Bottom, serverHeader, serverListPaneString)
+  text = lipgloss.JoinHorizontal(lipgloss.Top, text, serverListPaneColumn)
 
 	var b strings.Builder
 	b.WriteString(text)
@@ -112,5 +121,43 @@ func (m Model) View() string {
 }
 
 func (m Model) processCommand(command string) commandhistory.CommandText {
-  return commandhistory.CommandText{Text:"Unrecognized command",Type:commandhistory.FailureResponse}
+  var ch commandhistory.CommandText
+  words := strings.Fields(command)
+
+  switch words[0]{
+  case "set":
+    ch = m.processSet(words)
+  default:
+    ch = commandhistory.CommandText{Text:"Unrecognized command",Type:commandhistory.FailureResponse}
+  }
+
+  return ch
+}
+
+func (m *Model) processSet(words []string) commandhistory.CommandText {
+  var ch commandhistory.CommandText
+  var sb strings.Builder
+
+  if len(words) < 3 {
+    return commandhistory.CommandText{Text: "ERROR: set requires a key and value",Type:commandhistory.FailureResponse}
+  }
+
+  key := words[1]
+  value := strings.Join(words[2:]," ")
+  server, error := m.serverList.PickServer(key)
+  if error == nil {
+    sb.WriteString(server.String())
+  } else {
+    sb.WriteString("Unknown")
+  }
+  error = m.mc.Set(&memcache.Item{Key: words[1], Value: []byte(value)})
+  if error == nil {
+    sb.WriteString(" OK")
+    ch = commandhistory.CommandText{Text:sb.String(),Type:commandhistory.SuccessResponse}
+  } else {
+    sb.WriteString(" ERROR: ")
+    sb.WriteString(error.Error())
+    ch = commandhistory.CommandText{Text:sb.String(),Type:commandhistory.FailureResponse}
+  }
+  return ch
 }

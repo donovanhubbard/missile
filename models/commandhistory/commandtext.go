@@ -15,6 +15,7 @@ const (
 
 var (
   red = lipgloss.Color("9")
+  yellow = lipgloss.Color("227")
 )
 
 type CommandText struct {
@@ -29,6 +30,7 @@ func (ct CommandText) render(width int) []string {
 
   userInputStyle := lipgloss.NewStyle().Foreground(green)
   failureResponseStyle := lipgloss.NewStyle().Foreground(red)
+  successResponseStyle := lipgloss.NewStyle().Foreground(yellow)
 
   switch ct.Type {
     case UserInput:
@@ -36,6 +38,8 @@ func (ct CommandText) render(width int) []string {
       currentStyle = userInputStyle
     case FailureResponse:
       currentStyle = failureResponseStyle
+    case SuccessResponse:
+      currentStyle = successResponseStyle
   }
 
   sb.WriteString(ct.Text)
