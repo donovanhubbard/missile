@@ -127,6 +127,8 @@ func (m Model) processCommand(command string) commandhistory.CommandText {
   switch words[0]{
   case "set":
     ch = m.processSet(words)
+  case "get":
+    ch = m.processGet(words)
   default:
     ch = commandhistory.CommandText{Text:"Unrecognized command",Type:commandhistory.FailureResponse}
   }
@@ -139,7 +141,7 @@ func (m *Model) processSet(words []string) commandhistory.CommandText {
   var sb strings.Builder
 
   if len(words) < 3 {
-    return commandhistory.CommandText{Text: "ERROR: set requires a key and value",Type:commandhistory.FailureResponse}
+    return commandhistory.CommandText{Text: "usage: set <key> <value>",Type:commandhistory.FailureResponse}
   }
 
   key := words[1]
@@ -159,5 +161,36 @@ func (m *Model) processSet(words []string) commandhistory.CommandText {
     sb.WriteString(error.Error())
     ch = commandhistory.CommandText{Text:sb.String(),Type:commandhistory.FailureResponse}
   }
+  return ch
+}
+
+func (m *Model) processGet(words []string) commandhistory.CommandText {
+  var ch commandhistory.CommandText
+  var sb strings.Builder
+
+  if len(words) != 2 {
+    return commandhistory.CommandText{Text: "usage: get <key>",Type:commandhistory.FailureResponse}
+  }
+
+  key := words[1]
+
+  server, error := m.serverList.PickServer(key)
+  if error == nil {
+    sb.WriteString(server.String())
+  } else {
+    sb.WriteString("Unknown")
+  }
+
+  item, error := m.mc.Get(key)
+  if error == nil {
+    sb.WriteString(" ")
+    sb.WriteString(string(item.Value))
+    ch = commandhistory.CommandText{Text:sb.String(),Type:commandhistory.SuccessResponse}
+  } else {
+    sb.WriteString(" ERROR: ")
+    sb.WriteString(error.Error())
+    ch = commandhistory.CommandText{Text:sb.String(),Type:commandhistory.FailureResponse}
+  }
+
   return ch
 }
